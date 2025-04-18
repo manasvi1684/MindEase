@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ChatMessage from './ChatMessage';
 import FeelingTags from './FeelingTags';
 import TypingIndicator from './TypingIndicator';
-import { motion } from 'framer-motion';
 
 const ChatInterface = ({ onEmergencyDetected }) => {
   const [messages, setMessages] = useState([]);
@@ -87,7 +87,7 @@ const ChatInterface = ({ onEmergencyDetected }) => {
     setTimeout(() => {
       const aiResponse = {
         id: Date.now() + 1,
-        text: "I'm here to listen and help. Would you like to talk more about what you're feeling?",
+        text: responses[Math.floor(Math.random() * responses.length)],
         isUser: false,
         timestamp: new Date().toISOString()
       };
@@ -98,8 +98,8 @@ const ChatInterface = ({ onEmergencyDetected }) => {
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
+    visible: { 
+      opacity: 1, 
       y: 0,
       transition: {
         duration: 0.5,
@@ -133,16 +133,16 @@ const ChatInterface = ({ onEmergencyDetected }) => {
   };
 
   return (
-    <motion.div 
-      className="flex flex-col h-[calc(100vh-8rem)] sm:h-[calc(100vh-12rem)] bg-white/80 backdrop-blur-sm rounded-xl shadow-xl border border-blue-100 mx-2 sm:mx-4 md:mx-8 lg:mx-16 xl:mx-24 relative overflow-hidden"
+    <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
+      className="flex flex-col h-[calc(100vh-8rem)] sm:h-[calc(100vh-12rem)] bg-white/80 backdrop-blur-sm rounded-xl shadow-xl border border-blue-100 mx-2 sm:mx-4 md:mx-8 lg:mx-16 xl:mx-24 relative overflow-hidden"
     >
       {/* Animated Gradient Backgrounds */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute w-[500px] h-[500px] rounded-full bg-blue-100/20 blur-xl sm:blur-3xl"
+          className="absolute w-[500px] h-[500px] rounded-full bg-blue-100/30 blur-3xl"
           animate={{
             x: ["-50%", "50%", "-50%"],
             y: ["-10%", "10%", "-10%"],
@@ -154,9 +154,9 @@ const ChatInterface = ({ onEmergencyDetected }) => {
           }}
         />
         <motion.div
-          className="absolute w-[400px] h-[400px] rounded-full bg-blue-200/20 blur-xl sm:blur-3xl"
+          className="absolute w-[400px] h-[400px] rounded-full bg-blue-200/30 blur-3xl"
           animate={{
-            x: ["50%", "-50%", "10%"],
+            x: ["50%", "-50%", "50%"],
             y: ["10%", "-10%", "10%"],
           }}
           transition={{
@@ -166,7 +166,7 @@ const ChatInterface = ({ onEmergencyDetected }) => {
           }}
         />
         <motion.div
-          className="absolute w-[300px] h-[300px] rounded-full bg-blue-300/15 blur-xl sm:blur-3xl"
+          className="absolute w-[300px] h-[300px] rounded-full bg-blue-300/20 blur-3xl"
           animate={{
             x: ["-30%", "30%", "-30%"],
             y: ["30%", "-30%", "30%"],
@@ -181,7 +181,7 @@ const ChatInterface = ({ onEmergencyDetected }) => {
 
       {/* Header */}
       <motion.div 
-        className="bg-gradient-to-r from-blue-100/90 to-blue-50/90 p-3 sm:p-4 text-blue-800 rounded-t-xl relative z-10"
+        className="bg-gradient-to-r from-blue-100/80 to-blue-50/80 p-3 sm:p-4 text-blue-800 rounded-t-xl relative z-10"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -203,7 +203,7 @@ const ChatInterface = ({ onEmergencyDetected }) => {
       </motion.div>
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-2 relative z-10 bg-white/90 sm:bg-white/80" style={{ scrollBehavior: 'smooth' }}>
+      <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-2 relative z-10" style={{ scrollBehavior: 'smooth' }}>
         {messages.map((message, index) => (
           <ChatMessage
             key={message.id}
@@ -237,7 +237,7 @@ const ChatInterface = ({ onEmergencyDetected }) => {
 
       {/* Input Area */}
       <motion.div 
-        className="border-t border-blue-100/50 bg-white/90 sm:bg-white/50 p-2 sm:p-4 rounded-b-xl relative z-10"
+        className="border-t border-blue-100/50 bg-white/50 p-2 sm:p-4 rounded-b-xl relative z-10"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.7 }}

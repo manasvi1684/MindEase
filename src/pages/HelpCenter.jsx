@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import AnimatedBackground from '../components/AnimatedBackground';
+import Footer from '../components/Footer';
 
 const HelpCenter = () => {
   const [activeCategory, setActiveCategory] = useState('general');
@@ -54,48 +56,54 @@ const HelpCenter = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Help Center</h1>
-        
-        <div className="space-y-6">
-          <div className="bg-blue-50 p-6 rounded-lg">
-            <h2 className="text-xl font-semibold text-blue-800 mb-4">Frequently Asked Questions</h2>
-            <div className="space-y-4">
-              <div className="border-b border-blue-200 pb-4">
-                <h3 className="text-lg font-medium text-blue-800 mb-2">How does MindEase work?</h3>
-                <p className="text-gray-700">
-                  MindEase uses AI technology to provide mental health support through chat. Simply start a conversation and our AI will respond with understanding and helpful guidance.
-                </p>
+    <div className="min-h-screen bg-white relative">
+      <AnimatedBackground />
+      <div className="relative z-10">
+        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto px-4 py-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-8">Help Center</h1>
+            
+            <div className="space-y-6">
+              <div className="bg-blue-50 p-6 rounded-lg">
+                <h2 className="text-xl font-semibold text-blue-800 mb-4">Frequently Asked Questions</h2>
+                <div className="space-y-4">
+                  <div className="border-b border-blue-200 pb-4">
+                    <h3 className="text-lg font-medium text-blue-800 mb-2">How does MindEase work?</h3>
+                    <p className="text-gray-700">
+                      MindEase uses AI technology to provide mental health support through chat. Simply start a conversation and our AI will respond with understanding and helpful guidance.
+                    </p>
+                  </div>
+                  <div className="border-b border-blue-200 pb-4">
+                    <h3 className="text-lg font-medium text-blue-800 mb-2">Is my conversation private?</h3>
+                    <p className="text-gray-700">
+                      Yes, all conversations are completely private and confidential. We do not store or share your personal information.
+                    </p>
+                  </div>
+                  <div className="border-b border-blue-200 pb-4">
+                    <h3 className="text-lg font-medium text-blue-800 mb-2">How can I get the most out of MindEase?</h3>
+                    <p className="text-gray-700">
+                      Be open and honest about your feelings. The more you share, the better our AI can understand and help you.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="border-b border-blue-200 pb-4">
-                <h3 className="text-lg font-medium text-blue-800 mb-2">Is my conversation private?</h3>
-                <p className="text-gray-700">
-                  Yes, all conversations are completely private and confidential. We do not store or share your personal information.
+
+              <div className="bg-blue-50 p-6 rounded-lg">
+                <h2 className="text-xl font-semibold text-blue-800 mb-4">Contact Support</h2>
+                <p className="text-gray-700 mb-4">
+                  If you need additional help, please contact our support team.
                 </p>
-              </div>
-              <div className="border-b border-blue-200 pb-4">
-                <h3 className="text-lg font-medium text-blue-800 mb-2">How can I get the most out of MindEase?</h3>
-                <p className="text-gray-700">
-                  Be open and honest about your feelings. The more you share, the better our AI can understand and help you.
-                </p>
+                <button
+                  className="px-4 py-2 bg-blue-200 hover:bg-blue-300 text-blue-800 rounded-lg transition-colors duration-300"
+                  onClick={() => window.location.href = 'mailto:support@mindease.com'}
+                >
+                  Email Support
+                </button>
               </div>
             </div>
           </div>
-
-          <div className="bg-blue-50 p-6 rounded-lg">
-            <h2 className="text-xl font-semibold text-blue-800 mb-4">Contact Support</h2>
-            <p className="text-gray-700 mb-4">
-              If you need additional help, please contact our support team.
-            </p>
-            <button
-              className="px-4 py-2 bg-blue-200 hover:bg-blue-300 text-blue-800 rounded-lg transition-colors duration-300"
-              onClick={() => window.location.href = 'mailto:support@mindease.com'}
-            >
-              Email Support
-            </button>
-          </div>
         </div>
+        <Footer />
       </div>
     </div>
   );
