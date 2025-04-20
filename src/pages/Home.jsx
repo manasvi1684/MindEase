@@ -1,116 +1,34 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChatInterface from '../components/ChatInterface';
-import AnimatedBackground from '../components/AnimatedBackground';
-import { FaExclamationTriangle } from 'react-icons/fa';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import { FaExclamationTriangle, FaComments } from 'react-icons/fa';
+import { IoArrowForward } from 'react-icons/io5';
 
 const Home = () => {
-  const [showWelcome, setShowWelcome] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
   const [isEmergency, setIsEmergency] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentMoodIndex, setCurrentMoodIndex] = useState(0);
+  const navigate = useNavigate();
 
-  const containerVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3
-      }
-    },
-    exit: {
-      opacity: 0,
-      y: -50,
-      transition: {
-        duration: 0.5,
-        ease: "easeInOut"
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut"
-      }
-    }
-  };
-
-  const emergencyButtonVariants = {
-    hidden: { opacity: 0, x: 20 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.5,
-        delay: 0.8,
-        ease: "easeOut"
-      }
-    },
-    hover: {
-      scale: 1.1,
-      transition: {
-        duration: 0.2,
-        ease: "easeInOut"
-      }
-    },
-    tap: {
-      scale: 0.95,
-      transition: {
-        duration: 0.1
-      }
-    },
-    emergency: {
-      scale: [1, 1.2, 1],
-      backgroundColor: ["#DC2626", "#EF4444", "#DC2626"],
-      transition: {
-        duration: 1,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }
-    }
-  };
-
-  const popupVariants = {
-    hidden: { 
-      opacity: 0,
-      scale: 0.8,
-      y: 20
-    },
-    visible: { 
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: {
-        duration: 0.3,
-        ease: "easeOut"
-      }
-    },
-    exit: {
-      opacity: 0,
-      scale: 0.8,
-      y: 20,
-      transition: {
-        duration: 0.2,
-        ease: "easeIn"
-      }
-    }
-  };
+  const moods = [
+    { emoji: "😊", label: "Happy", color: "bg-yellow-100" },
+    { emoji: "😔", label: "Sad", color: "bg-blue-100" },
+    { emoji: "😤", label: "Frustrated", color: "bg-red-100" },
+    { emoji: "😴", label: "Tired", color: "bg-purple-100" },
+    { emoji: "😌", label: "Calm", color: "bg-green-100" },
+    { emoji: "😰", label: "Anxious", color: "bg-orange-100" }
+  ];
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowWelcome(false);
-      // Force scroll to top and show content
-      window.scrollTo(0, 0);
-      document.body.style.overflow = 'auto';
-    }, 4000);
+    const interval = setInterval(() => {
+      setCurrentMoodIndex((prevIndex) => (prevIndex + 1) % moods.length);
+    }, 2000); // Change mood every 2 seconds
 
-    return () => clearTimeout(timer);
+    return () => clearInterval(interval);
   }, []);
 
   const handleEmergencyClick = () => {
@@ -122,132 +40,246 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white relative">
-      <AnimatedBackground />
-      <div className="relative z-10">
-        <AnimatePresence>
-          {showWelcome && (
-            <motion.div
-              className="fixed inset-0 bg-blue-50 z-50"
-              initial={{ y: "-100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "-100%" }}
-              transition={{ duration: 0.8, ease: "easeInOut" }}
-            >
-              <div className="h-full flex flex-col items-center justify-center">
-                <motion.div
-                  className="text-center"
-                  initial={{ opacity: 0, y: -20 }}
+    <div className="min-h-screen w-full overflow-x-hidden">
+      <Header />
+
+      <main className="relative w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <motion.div 
+          className="absolute inset-0"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+        >
+          <motion.div 
+            className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-100/20 rounded-full blur-3xl"
+            animate={{ 
+              scale: [1, 1.2, 1],
+              rotate: [0, 90, 0]
+            }}
+            transition={{ 
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-purple-100/20 rounded-full blur-3xl"
+            animate={{ 
+              scale: [1.2, 1, 1.2],
+              rotate: [90, 0, 90]
+            }}
+            transition={{ 
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+        </motion.div>
+        
+        <div className="relative pt-24 lg:pt-32">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <motion.div 
+                className="space-y-8"
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+              >
+                <motion.h1 
+                  className="text-6xl font-bold text-gray-900 leading-tight"
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
+                  transition={{ duration: 0.8, delay: 0.4 }}
                 >
-                  <h1 className="text-5xl font-bold text-blue-600 mb-6">
-                    Welcome to MindEase
-                  </h1>
-                  <p className="text-xl text-gray-600 mb-8">
-                    Your mental health companion is here to support you.
-                  </p>
-                  <motion.div
-                    className="flex justify-center"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.5, duration: 0.5 }}
+                  Your <motion.span 
+                    className="bg-gradient-to-r from-blue-500 via-purple-500 to-teal-500 text-transparent bg-clip-text"
+                    animate={{ 
+                      backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                    }}
+                    transition={{ 
+                      duration: 5,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                    style={{ backgroundSize: "200% 200%" }}
+                  >AI-powered</motion.span><br />
+                  mental health<br />
+                  companion
+                </motion.h1>
+                <motion.p 
+                  className="text-lg text-gray-600 max-w-xl"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.6 }}
+                >
+                  MindEase provides 24/7 emotional support, mindfulness exercises, and personalized guidance to help you navigate life's challenges.
+                </motion.p>
+                <motion.div 
+                  className="flex flex-col sm:flex-row gap-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.8 }}
+                >
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-lg text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                    onClick={() => navigate('/login')}
                   >
-                    <motion.div
-                      className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center shadow-lg"
-                      animate={{
-                        scale: [1, 1.2, 1],
-                        rotate: [0, 10, -10, 0],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
+                    Start Chatting
+                  </motion.button>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Link
+                      to="/about"
+                      className="inline-flex items-center px-8 py-4 bg-white text-gray-600 rounded-xl hover:bg-gray-50 transition-all text-lg font-medium border-2 border-gray-200"
                     >
-                      <span className="text-4xl">💭</span>
-                    </motion.div>
+                      Learn More
+                      <IoArrowForward className="ml-2" />
+                    </Link>
                   </motion.div>
                 </motion.div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: showWelcome ? 0 : 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <ChatInterface onEmergencyDetected={setIsEmergency} />
-          </motion.div>
-        </div>
-        <motion.button
-          className="fixed top-20 right-4 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg z-50"
-          onClick={handleEmergencyClick}
-          animate={isEmergency ? {
-            scale: [1, 1.2, 1],
-            backgroundColor: ["#EF4444", "#DC2626", "#EF4444"],
-          } : {
-            scale: 1,
-            backgroundColor: "#EF4444"
-          }}
-          transition={{
-            duration: 1,
-            repeat: isEmergency ? Infinity : 0,
-            ease: "easeInOut"
-          }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <FaExclamationTriangle className="text-xl sm:text-2xl md:text-3xl" />
-        </motion.button>
-        <AnimatePresence>
-          {showPopup && (
-            <motion.div
-              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <motion.div
-                className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4"
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-              >
-                <div className="flex items-center justify-center mb-4">
-                  <FaExclamationTriangle className="text-4xl text-red-500 mr-3" />
-                  <h2 className="text-2xl font-bold text-red-600">Medical Attention Required</h2>
-                </div>
-                <p className="text-gray-700 mb-6 text-center">
-                  Our AI has detected signs that you may need immediate medical attention. Please contact emergency services or a healthcare professional.
-                </p>
-                <div className="space-y-3">
-                  <a
-                    href="tel:911"
-                    className="block w-full bg-red-500 text-white text-center py-3 rounded-lg hover:bg-red-600 transition-colors"
-                  >
-                    Call 911
-                  </a>
-                  <a
-                    href="tel:988"
-                    className="block w-full bg-blue-500 text-white text-center py-3 rounded-lg hover:bg-blue-600 transition-colors"
-                  >
-                    Call 988 (Suicide & Crisis Lifeline)
-                  </a>
-                </div>
-                <button
-                  className="mt-4 w-full text-gray-600 hover:text-gray-800 transition-colors"
-                  onClick={handleClosePopup}
-                >
-                  Close
-                </button>
               </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+              <motion.div 
+                className="relative"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+              >
+                <motion.div 
+                  className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl p-8 max-w-md mx-auto"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  <motion.div 
+                    className="flex items-center justify-center"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    <div className="text-2xl text-gray-800 font-medium">How are you feeling today?</div>
+                  </motion.div>
+                  
+                  <motion.div 
+                    className="mt-8 flex justify-center items-center h-32"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8 }}
+                  >
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={currentMoodIndex}
+                        className="flex flex-col items-center"
+                        initial={{ x: 100, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: -100, opacity: 0 }}
+                        transition={{ 
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 25,
+                          duration: 0.5
+                        }}
+                      >
+                        <motion.div 
+                          className={`w-24 h-24 ${moods[currentMoodIndex].color} rounded-full flex items-center justify-center text-4xl shadow-md`}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {moods[currentMoodIndex].emoji}
+                        </motion.div>
+                        <motion.span 
+                          className="mt-4 text-lg font-medium text-gray-700"
+                        >
+                          {moods[currentMoodIndex].label}
+                        </motion.span>
+                      </motion.div>
+                    </AnimatePresence>
+                  </motion.div>
+                  
+                  <motion.div 
+                    className="mt-8 flex justify-center"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.5 }}
+                  >
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-md"
+                      onClick={() => navigate('/login')}
+                    >
+                      Start a Conversation
+                    </motion.button>
+                  </motion.div>
+                </motion.div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+
+      <motion.button
+        className="fixed top-20 right-4 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg z-50 hover:bg-red-600 transition-colors"
+        onClick={handleEmergencyClick}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        initial={{ opacity: 0, x: 100 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 1 }}
+      >
+        <FaExclamationTriangle className="text-xl sm:text-2xl md:text-3xl" />
+      </motion.button>
+
+      {showPopup && (
+        <motion.div 
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div 
+            className="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 border border-gray-200"
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.9, y: 20 }}
+          >
+            <div className="flex items-center justify-center mb-6">
+              <FaExclamationTriangle className="text-4xl text-red-500 mr-3" />
+              <h2 className="text-2xl font-bold text-gray-900">Medical Attention Required</h2>
+            </div>
+            <p className="text-gray-600 mb-8 text-center text-lg">
+              Our AI has detected signs that you may need immediate medical attention. Please contact emergency services or a healthcare professional.
+            </p>
+            <div className="space-y-4">
+              <motion.a
+                href="tel:911"
+                className="block w-full bg-red-500 text-white text-center py-4 rounded-xl hover:bg-red-600 transition-colors text-lg font-medium"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Call 911
+              </motion.a>
+              <motion.a
+                href="tel:988"
+                className="block w-full bg-blue-600 text-white text-center py-4 rounded-xl hover:bg-blue-700 transition-colors text-lg font-medium"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Call 988 (Suicide & Crisis Lifeline)
+              </motion.a>
+            </div>
+            <motion.button
+              className="mt-6 w-full text-gray-600 hover:text-gray-900 transition-colors text-lg"
+              onClick={handleClosePopup}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Close
+            </motion.button>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 };

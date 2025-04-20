@@ -1,51 +1,52 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
-import Contact from './pages/Contact';
-import PageTransition from './components/PageTransition';
 import Login from './pages/Login';
-import Register from './pages/Register';
-import Settings from './pages/Settings';
-import HelpCenter from './pages/HelpCenter';
+import Chat from './pages/Chat';
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
 import { ThemeProvider } from './context/ThemeContext';
 import './App.css'
+
+// Protected Route component for regular users
+const ProtectedRoute = ({ children }) => {
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+// Protected Route component for admin
+const AdminRoute = ({ children }) => {
+  const isAdmin = localStorage.getItem('isAdmin') === 'true';
+  return isAdmin ? children : <Navigate to="/admin/login" />;
+};
 
 function App() {
   return (
     <ThemeProvider>
       <Router>
-        <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 overflow-hidden">
-          <Navbar />
-          <main className="h-[calc(100vh-4rem)] overflow-y-auto">
-            <PageTransition>
-              <Routes>
-                <Route path="/" element={
-                  <PageTransition>
-                    <div className="relative">
-                      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center mb-8">
-                          <h1 className="text-3xl font-bold text-blue-800 mb-2">MindEase</h1>
-                          <p className="text-blue-600">Your Mental Health Companion</p>
-                        </div>
-                        <div className="max-w-3xl mx-auto">
-                          <Home />
-                        </div>
-                      </div>
-                    </div>
-                  </PageTransition>
-                } />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/about" element={<AboutUs />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/help" element={<HelpCenter />} />
-                <Route path="/contact" element={<Contact />} />
-              </Routes>
-            </PageTransition>
-          </main>
-        </div>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <Chat />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
+        </Routes>
       </Router>
     </ThemeProvider>
   );

@@ -2,14 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChatMessage from './ChatMessage';
 import FeelingTags from './FeelingTags';
-import TypingIndicator from './TypingIndicator';
 
 const ChatInterface = ({ onEmergencyDetected }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [selectedFeeling, setSelectedFeeling] = useState(null);
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
   const responses = [
     "I understand how you're feeling. Would you like to talk more about what's on your mind?",
@@ -45,12 +45,19 @@ const ChatInterface = ({ onEmergencyDetected }) => {
     return concerningKeywords.some(keyword => lowerText.includes(keyword));
   };
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = (force = false) => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > 0) {
+      // Use setTimeout to ensure the DOM has updated before scrolling
+      setTimeout(() => {
+        scrollToBottom(true);
+      }, 100);
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -82,6 +89,7 @@ const ChatInterface = ({ onEmergencyDetected }) => {
     setMessages(prev => [...prev, newMessage]);
     setInput('');
     setIsTyping(true);
+    scrollToBottom(true);
 
     // Simulate AI response
     setTimeout(() => {
@@ -93,7 +101,17 @@ const ChatInterface = ({ onEmergencyDetected }) => {
       };
       setMessages(prev => [...prev, aiResponse]);
       setIsTyping(false);
+      scrollToBottom(true);
     }, 1500);
+  };
+
+  const handleScroll = () => {
+    if (messagesContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 100;
+      setShowScrollButton(!isAtBottom);
+      setUserHasScrolled(true);
+    }
   };
 
   const containerVariants = {
@@ -142,7 +160,7 @@ const ChatInterface = ({ onEmergencyDetected }) => {
       {/* Animated Gradient Backgrounds */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute w-[500px] h-[500px] rounded-full bg-blue-100/30 blur-3xl"
+          className="absolute w-[500px] h-[500px] rounded-full blur-3xl"
           animate={{
             x: ["-50%", "50%", "-50%"],
             y: ["-10%", "10%", "-10%"],
@@ -154,7 +172,7 @@ const ChatInterface = ({ onEmergencyDetected }) => {
           }}
         />
         <motion.div
-          className="absolute w-[400px] h-[400px] rounded-full bg-blue-200/30 blur-3xl"
+          className="absolute w-[400px] h-[400px] rounded-full blur-3xl"
           animate={{
             x: ["50%", "-50%", "50%"],
             y: ["10%", "-10%", "10%"],
@@ -166,7 +184,7 @@ const ChatInterface = ({ onEmergencyDetected }) => {
           }}
         />
         <motion.div
-          className="absolute w-[300px] h-[300px] rounded-full bg-blue-300/20 blur-3xl"
+          className="absolute w-[300px] h-[300px] rounded-full blur-3xl"
           animate={{
             x: ["-30%", "30%", "-30%"],
             y: ["30%", "-30%", "30%"],
@@ -203,7 +221,12 @@ const ChatInterface = ({ onEmergencyDetected }) => {
       </motion.div>
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-2 relative z-10" style={{ scrollBehavior: 'smooth' }}>
+      <div 
+        ref={messagesContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-2 relative z-10" 
+        style={{ scrollBehavior: 'smooth' }}
+      >
         {messages.map((message, index) => (
           <ChatMessage
             key={message.id}
@@ -224,6 +247,21 @@ const ChatInterface = ({ onEmergencyDetected }) => {
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Scroll to Bottom Button */}
+      {showScrollButton && (
+        <motion.button
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          onClick={() => scrollToBottom(true)}
+          className="absolute bottom-24 right-4 bg-blue-500 text-white p-2 rounded-full shadow-lg hover:bg-blue-600 transition-colors z-20"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+        </motion.button>
+      )}
 
       {/* Feeling Tags - Always visible */}
       <motion.div 
