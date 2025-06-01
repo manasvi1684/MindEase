@@ -2,14 +2,27 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChatMessage from './ChatMessage';
 import FeelingTags from './FeelingTags';
+import { v4 as uuidv4 } from 'uuid';
+import { chatService } from '../services/api';
 
 const ChatInterface = ({ onEmergencyDetected }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [sessionId] = useState(() => {
+    // Generate a unique session ID if not already stored
+    const storedSessionId = localStorage.getItem('chatSessionId');
+    if (!storedSessionId) {
+      const newSessionId = uuidv4();
+      localStorage.setItem('chatSessionId', newSessionId);
+      return newSessionId;
+    }
+    return storedSessionId;
+  });
 
   const responses = [
     "I understand how you're feeling. Would you like to talk more about what's on your mind?",
@@ -89,20 +102,34 @@ const ChatInterface = ({ onEmergencyDetected }) => {
     setMessages(prev => [...prev, newMessage]);
     setInput('');
     setIsTyping(true);
+    setError(null);
     scrollToBottom(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const data = await chatService.sendMessage(input, sessionId);
+      
       const aiResponse = {
         id: Date.now() + 1,
-        text: responses[Math.floor(Math.random() * responses.length)],
+        text: data.response,
         isUser: false,
         timestamp: new Date().toISOString()
       };
+      
       setMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error('Error:', error);
+      setError('Failed to get response from the server. Please try again.');
+      const errorResponse = {
+        id: Date.now() + 1,
+        text: "I'm sorry, I encountered an error. Please try again.",
+        isUser: false,
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
       setIsTyping(false);
       scrollToBottom(true);
-    }, 1500);
+    }
   };
 
   const handleScroll = () => {
@@ -121,30 +148,6 @@ const ChatInterface = ({ onEmergencyDetected }) => {
       y: 0,
       transition: {
         duration: 0.5,
-        ease: "easeOut"
-      }
-    }
-  };
-
-  const messageVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.3,
-        ease: "easeOut"
-      }
-    }
-  };
-
-  const userMessageVariants = {
-    hidden: { opacity: 0, x: 20 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.3,
         ease: "easeOut"
       }
     }
@@ -235,16 +238,6 @@ const ChatInterface = ({ onEmergencyDetected }) => {
             timestamp={message.timestamp}
           />
         ))}
-        {isTyping && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="flex justify-start"
-          >
-            <TypingIndicator />
-          </motion.div>
-        )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -285,22 +278,35 @@ const ChatInterface = ({ onEmergencyDetected }) => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage(e);
+              }
+            }}
             placeholder="Type your message..."
             className="flex-1 p-2 text-sm sm:text-base rounded-lg border border-blue-200 bg-white/80 text-blue-800 placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-colors duration-300"
             whileFocus={{ scale: 1.02 }}
           />
           <motion.button
             type="submit"
-            className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-300"
+            className="p-2 ml-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-300"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
-            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
           </motion.button>
         </form>
       </motion.div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="absolute top-0 left-0 right-0 bg-red-100 text-red-800 p-2 text-center z-20">
+          {error}
+        </div>
+      )}
     </motion.div>
   );
 };
